@@ -54,7 +54,7 @@ const ThemeStyles = () => (
     .text-custom-accent { color: var(--accent-color); }
     .bg-custom-accent { background-color: var(--accent-color); }
     .border-custom-accent { border-color: var(--accent-color); }
-    body { background-color: var(--bg-color); }
+    body { background-color: var(--bg-color); opacity: 1 !important; }
     .admin-scrollbar::-webkit-scrollbar { width: 4px; }
     .admin-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .admin-scrollbar::-webkit-scrollbar-thumb { background: #333; }
@@ -283,7 +283,7 @@ const Posts = () => {
                 <span className="text-[10px] uppercase tracking-widest text-stone-500 font-bold mb-6 block">{post.date}</span>
                 <h2 className="text-4xl font-serif font-bold mb-8 leading-tight group-hover:text-custom-accent transition-colors">{post.title}</h2>
                 <p className="text-stone-400 leading-relaxed mb-10 text-lg">{post.excerpt}</p>
-                <Link to={`/posts/${post.slug}`} className="inline-block text-xs font-bold uppercase tracking-widest border-b border-custom-accent pb-2">Read Article</Link>
+                <Link to={`/posts/${post.slug}`} className="inline-block text-xs font-bold uppercase tracking-widest border-b border-custom-accent/30 pb-2">Read Article</Link>
               </div>
             </article>
           ))}
