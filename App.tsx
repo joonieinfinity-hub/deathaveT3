@@ -4,9 +4,10 @@ import { Routes, Route, Link, useLocation, useParams, useNavigate } from 'react-
 import { 
   Menu, X, Instagram, Phone, MapPin, Clock, ArrowRight, Settings, 
   ChevronRight, User, Wine, Layout as LayoutIcon, FileText, 
-  BarChart3, Mail, Plus, Trash2, Eye, EyeOff, Palette, Save
+  BarChart3, Mail, Plus, Trash2, Eye, EyeOff, Palette, Save,
+  Layers
 } from 'lucide-react';
-import { SiteData, Post, Wine as WineType, Subscriber } from './types';
+import { SiteData, Post, Wine as WineType, Subscriber, Service } from './types';
 import { INITIAL_SITE_DATA } from './constants';
 
 // --- Context & State Management ---
@@ -29,7 +30,6 @@ const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     localStorage.setItem('death_ave_cms_data', JSON.stringify(newData));
   };
 
-  // Apply Theme Colors
   useEffect(() => {
     document.documentElement.style.setProperty('--primary-color', data.colors.primary);
     document.documentElement.style.setProperty('--accent-color', data.colors.accent);
@@ -43,7 +43,6 @@ const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   );
 };
 
-// --- Custom Tailwind Overrides via CSS Variables ---
 const ThemeStyles = () => (
   <style>{`
     :root {
@@ -56,10 +55,12 @@ const ThemeStyles = () => (
     .bg-custom-accent { background-color: var(--accent-color); }
     .border-custom-accent { border-color: var(--accent-color); }
     body { background-color: var(--bg-color); }
+    .admin-scrollbar::-webkit-scrollbar { width: 4px; }
+    .admin-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .admin-scrollbar::-webkit-scrollbar-thumb { background: #333; }
   `}</style>
 );
 
-// --- Helper Components ---
 const SectionTitle: React.FC<{ children: React.ReactNode, light?: boolean }> = ({ children, light }) => (
   <h2 className={`text-4xl md:text-5xl font-serif font-bold mb-8 ${light ? 'text-white' : 'text-stone-900 dark:text-stone-100'}`}>
     {children}
@@ -95,15 +96,14 @@ const Navbar = () => {
         </div>
       </div>
       {isOpen && (
-        <div className="md:hidden bg-black absolute w-full left-0 p-8 border-b border-white/10">
-          <div className="flex flex-col gap-6 text-center">
-            <Link to="/" onClick={() => setIsOpen(false)} className="text-xl font-serif text-white uppercase tracking-widest">Home</Link>
-            <Link to="/about" onClick={() => setIsOpen(false)} className="text-xl font-serif text-white uppercase tracking-widest">About</Link>
-            <Link to="/services" onClick={() => setIsOpen(false)} className="text-xl font-serif text-white uppercase tracking-widest">Services</Link>
-            <Link to="/destinations" onClick={() => setIsOpen(false)} className="text-xl font-serif text-white uppercase tracking-widest">Visit</Link>
-            <Link to="/posts" onClick={() => setIsOpen(false)} className="text-xl font-serif text-white uppercase tracking-widest">Journal</Link>
-            <Link to="/contact" onClick={() => setIsOpen(false)} className="text-xl font-serif text-custom-accent uppercase tracking-widest">Contact</Link>
-          </div>
+        <div className="md:hidden bg-black fixed inset-0 z-[60] p-8 flex flex-col justify-center items-center gap-8">
+          <button onClick={() => setIsOpen(false)} className="absolute top-8 right-8 text-white"><X size={32} /></button>
+          <Link to="/" onClick={() => setIsOpen(false)} className="text-3xl font-serif text-white uppercase tracking-widest">Home</Link>
+          <Link to="/about" onClick={() => setIsOpen(false)} className="text-3xl font-serif text-white uppercase tracking-widest">About</Link>
+          <Link to="/services" onClick={() => setIsOpen(false)} className="text-3xl font-serif text-white uppercase tracking-widest">Services</Link>
+          <Link to="/destinations" onClick={() => setIsOpen(false)} className="text-3xl font-serif text-white uppercase tracking-widest">Visit</Link>
+          <Link to="/posts" onClick={() => setIsOpen(false)} className="text-3xl font-serif text-white uppercase tracking-widest">Journal</Link>
+          <Link to="/contact" onClick={() => setIsOpen(false)} className="text-3xl font-serif text-custom-accent uppercase tracking-widest">Contact</Link>
         </div>
       )}
     </nav>
@@ -152,7 +152,6 @@ const Footer = () => {
 };
 
 // --- Pages ---
-
 const Home = () => {
   const { data } = useContext(SiteContext);
   return (
@@ -316,18 +315,6 @@ const About = () => {
             <div className="absolute top-0 right-0 w-64 h-64 bg-custom-accent/10 -z-10 blur-3xl"></div>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-           {[
-             { title: "The Soil", desc: "Organic and biodynamic farming is our baseline. We prioritize vines treated with dignity." },
-             { title: "The Craft", desc: "No synthetic additives, native yeast fermentations, and minimal sulfur." },
-             { title: "The Community", desc: "Based in Hudson Yards, serving NYC's most conscious enthusiasts." }
-           ].map((item, i) => (
-             <div key={i} className="border border-white/10 p-12 bg-stone-900/20">
-               <h4 className="text-2xl font-serif font-bold mb-6 text-custom-accent">{item.title}</h4>
-               <p className="text-stone-400 text-sm leading-relaxed">{item.desc}</p>
-             </div>
-           ))}
-        </div>
       </div>
     </div>
   );
@@ -404,7 +391,6 @@ const Destinations = () => {
           </div>
         </div>
         <div className="h-[700px] border border-white/5 grayscale relative">
-          <div className="absolute inset-0 bg-custom-accent/5 pointer-events-none"></div>
           <iframe 
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.4497321289196!2d-74.00350712341!3d40.751025071387!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259ae65c9535b%3A0xc3f5c1287c2b33e2!2s317%2010th%20Ave%2C%20New%20York%2C%20NY%2010001!5e0!3m2!1sen!2sus!4v1715694382500!5m2!1sen!2sus" 
             width="100%" height="100%" style={{ border: 0 }} allowFullScreen loading="lazy"
@@ -418,7 +404,6 @@ const Destinations = () => {
 const Contact = () => {
   const { data } = useContext(SiteContext);
   const [submitted, setSubmitted] = useState(false);
-
   return (
     <div className="pt-40 pb-40 px-4 bg-stone-900/20">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-32">
@@ -447,20 +432,11 @@ const Contact = () => {
             </div>
           ) : (
             <form onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }} className="space-y-10">
-              <div className="grid grid-cols-2 gap-8">
-                <div>
-                  <label className="text-[10px] uppercase tracking-widest font-bold text-stone-600 mb-3 block">Full Name</label>
-                  <input required className="w-full bg-white/5 border border-white/10 px-6 py-4 focus:outline-none focus:border-custom-accent transition-colors" type="text" />
-                </div>
-                <div>
-                  <label className="text-[10px] uppercase tracking-widest font-bold text-stone-600 mb-3 block">Email Address</label>
-                  <input required className="w-full bg-white/5 border border-white/10 px-6 py-4 focus:outline-none focus:border-custom-accent transition-colors" type="email" />
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <input required placeholder="Full Name" className="w-full bg-white/5 border border-white/10 px-6 py-4 focus:outline-none focus:border-custom-accent transition-colors" type="text" />
+                <input required placeholder="Email" className="w-full bg-white/5 border border-white/10 px-6 py-4 focus:outline-none focus:border-custom-accent transition-colors" type="email" />
               </div>
-              <div>
-                <label className="text-[10px] uppercase tracking-widest font-bold text-stone-600 mb-3 block">Message</label>
-                <textarea required rows={5} className="w-full bg-white/5 border border-white/10 px-6 py-4 focus:outline-none focus:border-custom-accent transition-colors"></textarea>
-              </div>
+              <textarea required placeholder="Message" rows={5} className="w-full bg-white/5 border border-white/10 px-6 py-4 focus:outline-none focus:border-custom-accent transition-colors"></textarea>
               <button className="w-full bg-custom-accent py-5 text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-red-950 transition-colors">Send Inquiry</button>
             </form>
           )}
@@ -473,8 +449,9 @@ const Contact = () => {
 // --- Admin CMS Dashboard ---
 const AdminDashboard = () => {
   const { data, updateData } = useContext(SiteContext);
-  const [activeTab, setActiveTab] = useState<'content' | 'wines' | 'posts' | 'theme' | 'seo' | 'subscribers'>('content');
+  const [activeTab, setActiveTab] = useState<'content' | 'wines' | 'posts' | 'services' | 'theme' | 'seo' | 'subscribers'>('content');
   const [localData, setLocalData] = useState(data);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleSave = () => {
     updateData(localData);
@@ -499,7 +476,7 @@ const AdminDashboard = () => {
         <label className="text-[10px] uppercase font-bold text-stone-500 mb-2 block">{label}</label>
         <input 
           type={type} 
-          value={val} 
+          value={val || ''} 
           onChange={(e) => updateField(path, type === 'number' ? Number(e.target.value) : e.target.value)} 
           className="w-full bg-stone-900 border border-white/10 p-3 text-sm focus:border-custom-accent outline-none" 
         />
@@ -514,7 +491,7 @@ const AdminDashboard = () => {
         <label className="text-[10px] uppercase font-bold text-stone-500 mb-2 block">{label}</label>
         <textarea 
           rows={4} 
-          value={val} 
+          value={val || ''} 
           onChange={(e) => updateField(path, e.target.value)} 
           className="w-full bg-stone-900 border border-white/10 p-3 text-sm focus:border-custom-accent outline-none" 
         />
@@ -523,22 +500,30 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-stone-950 pt-20 flex">
-      {/* Sidebar */}
-      <div className="w-72 bg-black border-r border-white/5 p-8 flex flex-col gap-2 fixed h-full pt-12 overflow-y-auto">
-        <h2 className="text-2xl font-serif font-bold text-custom-accent mb-10 px-2 uppercase tracking-tight">CMS Portal</h2>
+    <div className="min-h-screen bg-stone-950 flex flex-col md:flex-row">
+      <div className="md:hidden p-4 bg-black border-b border-white/5 flex justify-between items-center fixed w-full z-50">
+        <h2 className="font-serif font-bold text-custom-accent">CMS PORTAL</h2>
+        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-white"><Menu /></button>
+      </div>
+
+      <div className={`w-72 bg-black border-r border-white/5 p-8 flex flex-col gap-2 fixed md:sticky h-screen top-0 transition-transform z-50 overflow-y-auto admin-scrollbar ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+        <div className="flex justify-between items-center mb-10">
+          <h2 className="text-2xl font-serif font-bold text-custom-accent uppercase tracking-tight">CMS Portal</h2>
+          <button onClick={() => setSidebarOpen(false)} className="md:hidden text-white"><X size={20} /></button>
+        </div>
         
         {[
           { id: 'content', icon: LayoutIcon, label: 'Page Content' },
           { id: 'wines', icon: Wine, label: 'Bottle Vault' },
           { id: 'posts', icon: FileText, label: 'Journal Manager' },
+          { id: 'services', icon: Layers, label: 'Services Manager' },
           { id: 'theme', icon: Palette, label: 'Theme & Sections' },
           { id: 'seo', icon: BarChart3, label: 'SEO & Meta' },
           { id: 'subscribers', icon: Mail, label: 'Subscribers' },
         ].map(tab => (
           <button 
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)} 
+            onClick={() => { setActiveTab(tab.id as any); setSidebarOpen(false); }} 
             className={`flex items-center gap-4 p-4 rounded-sm text-xs font-bold uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-custom-accent text-white' : 'text-stone-500 hover:bg-white/5 hover:text-stone-300'}`}
           >
             <tab.icon size={18} /> {tab.label}
@@ -546,18 +531,18 @@ const AdminDashboard = () => {
         ))}
 
         <div className="mt-auto pt-10">
-          <button onClick={handleSave} className="w-full bg-stone-100 text-black py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-all shadow-xl">
-            Publish Changes
+          <button onClick={handleSave} className="w-full bg-stone-100 text-black py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-all shadow-xl flex items-center justify-center gap-2">
+            <Save size={14} /> Publish Changes
           </button>
+          <Link to="/" className="w-full text-center mt-4 text-[10px] uppercase font-bold text-stone-600 hover:text-white block transition-colors">Return to Site</Link>
         </div>
       </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 ml-72 p-16 overflow-y-auto">
+      <div className="flex-1 p-6 md:p-16 pt-24 md:pt-16 max-w-6xl mx-auto w-full">
         {activeTab === 'content' && (
-          <div className="max-w-4xl space-y-12">
+          <div className="space-y-12">
             <h1 className="text-4xl font-serif font-bold mb-10">Store Information</h1>
-            <div className="grid grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <Input label="Company Name" path="companyName" />
               <Input label="Tagline" path="tagline" />
             </div>
@@ -565,20 +550,22 @@ const AdminDashboard = () => {
             <TextArea label="About Story" path="aboutText" />
             
             <h2 className="text-xl font-bold uppercase tracking-widest border-b border-white/10 pb-4">Founder Spotlight</h2>
-            <div className="grid grid-cols-1 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <Input label="Founder Image URL" path="founderImageUrl" />
               <Input label="Founder Image Alt Text" path="founderImageAlt" />
-              <TextArea label="Founder Bio" path="founderBio" />
+              <div className="md:col-span-2">
+                <TextArea label="Founder Bio" path="founderBio" />
+              </div>
             </div>
 
             <h2 className="text-xl font-bold uppercase tracking-widest border-b border-white/10 pb-4">Contact Info</h2>
-            <div className="grid grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <Input label="Phone" path="phone" />
               <Input label="Address" path="address" />
             </div>
 
             <h2 className="text-xl font-bold uppercase tracking-widest border-b border-white/10 pb-4">Store Hours</h2>
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Input label="Tue - Sat" path="hours.tueSat" />
               <Input label="Sunday" path="hours.sun" />
               <Input label="Monday" path="hours.mon" />
@@ -587,44 +574,50 @@ const AdminDashboard = () => {
         )}
 
         {activeTab === 'wines' && (
-          <div className="max-w-6xl">
-            <div className="flex justify-between items-center mb-12">
+          <div>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4">
               <h1 className="text-4xl font-serif font-bold">Wine Vault</h1>
               <button 
-                onClick={() => setLocalData({ ...localData, wines: [...localData.wines, { id: Date.now().toString(), name: "New Bottle", region: "Region", price: 0, type: 'Red', description: "", imageUrl: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?q=80&w=1000&auto=format&fit=crop", imageAlt: "Image of new wine bottle", isFeatured: false }] })}
-                className="bg-custom-accent px-6 py-3 text-[10px] font-bold uppercase tracking-widest"
+                onClick={() => setLocalData({ ...localData, wines: [{ id: Date.now().toString(), name: "New Bottle", region: "Region", price: 0, type: 'Red', description: "", imageUrl: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?q=80&w=1000&auto=format&fit=crop", imageAlt: "Image of new wine bottle", isFeatured: false }, ...localData.wines] })}
+                className="bg-custom-accent px-6 py-3 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2"
               >
-                Add New Bottle
+                <Plus size={14} /> Add New Bottle
               </button>
             </div>
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {localData.wines.map((wine, idx) => (
                 <div key={wine.id} className="bg-stone-900/50 p-8 border border-white/5 relative group flex flex-col">
-                   <div className="grid grid-cols-2 gap-6 flex-grow">
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-grow">
                       <div className="space-y-4">
                         <label className="text-[10px] uppercase font-bold text-stone-500 block">Name</label>
-                        <input className="w-full bg-black/40 border border-white/5 p-3 text-sm" value={wine.name} onChange={(e) => {
+                        <input className="w-full bg-black/40 border border-white/5 p-3 text-sm focus:border-custom-accent outline-none" value={wine.name} onChange={(e) => {
                           const w = [...localData.wines]; w[idx].name = e.target.value; setLocalData({ ...localData, wines: w });
                         }} />
                         <label className="text-[10px] uppercase font-bold text-stone-500 block">Region</label>
-                        <input className="w-full bg-black/40 border border-white/5 p-3 text-sm" value={wine.region} onChange={(e) => {
+                        <input className="w-full bg-black/40 border border-white/5 p-3 text-sm focus:border-custom-accent outline-none" value={wine.region} onChange={(e) => {
                           const w = [...localData.wines]; w[idx].region = e.target.value; setLocalData({ ...localData, wines: w });
                         }} />
-                        <label className="text-[10px] uppercase font-bold text-stone-500 block">Price ($)</label>
-                        <input className="w-full bg-black/40 border border-white/5 p-3 text-sm" type="number" value={wine.price} onChange={(e) => {
-                          const w = [...localData.wines]; w[idx].price = Number(e.target.value); setLocalData({ ...localData, wines: w });
-                        }} />
+                        <label className="text-[10px] uppercase font-bold text-stone-500 block">Wine Category</label>
+                        <select className="w-full bg-black/40 border border-white/5 p-3 text-sm focus:border-custom-accent outline-none" value={wine.type} onChange={(e) => {
+                           const w = [...localData.wines]; w[idx].type = e.target.value as any; setLocalData({ ...localData, wines: w });
+                        }}>
+                          {['Red', 'White', 'Rosé', 'Orange', 'Sparkling'].map(t => <option key={t} value={t}>{t}</option>)}
+                        </select>
                       </div>
                       <div className="space-y-4">
+                        <label className="text-[10px] uppercase font-bold text-stone-500 block">Price ($)</label>
+                        <input className="w-full bg-black/40 border border-white/5 p-3 text-sm focus:border-custom-accent outline-none" type="number" value={wine.price} onChange={(e) => {
+                          const w = [...localData.wines]; w[idx].price = Number(e.target.value); setLocalData({ ...localData, wines: w });
+                        }} />
                         <label className="text-[10px] uppercase font-bold text-stone-500 block">Image URL</label>
-                        <input className="w-full bg-black/40 border border-white/5 p-3 text-sm" value={wine.imageUrl} onChange={(e) => {
+                        <input className="w-full bg-black/40 border border-white/5 p-3 text-sm focus:border-custom-accent outline-none" value={wine.imageUrl} onChange={(e) => {
                           const w = [...localData.wines]; w[idx].imageUrl = e.target.value; setLocalData({ ...localData, wines: w });
                         }} />
                         <label className="text-[10px] uppercase font-bold text-stone-500 block">Image Alt Text</label>
-                        <input className="w-full bg-black/40 border border-white/5 p-3 text-sm" value={wine.imageAlt} onChange={(e) => {
+                        <input className="w-full bg-black/40 border border-white/5 p-3 text-sm focus:border-custom-accent outline-none" value={wine.imageAlt} onChange={(e) => {
                           const w = [...localData.wines]; w[idx].imageAlt = e.target.value; setLocalData({ ...localData, wines: w });
                         }} />
-                        <div className="flex items-center gap-4 pt-6">
+                        <div className="flex items-center gap-4 pt-4">
                            <input type="checkbox" checked={wine.isFeatured} onChange={(e) => {
                              const w = [...localData.wines]; w[idx].isFeatured = e.target.checked; setLocalData({ ...localData, wines: w });
                            }} />
@@ -632,19 +625,14 @@ const AdminDashboard = () => {
                         </div>
                       </div>
                    </div>
-                   
-                   {/* Per-card controls */}
                    <div className="mt-8 pt-6 border-t border-white/5 flex justify-between items-center">
                      <button onClick={() => setLocalData({ ...localData, wines: localData.wines.filter(w => w.id !== wine.id) })} className="text-[10px] uppercase tracking-widest font-bold text-stone-500 hover:text-red-500 transition-colors flex items-center gap-2">
-                       <Trash2 size={14} /> Remove Bottle
+                       <Trash2 size={14} /> Remove
                      </button>
                      <button onClick={handleSave} className="bg-custom-accent/20 hover:bg-custom-accent text-white px-5 py-3 text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-2 border border-custom-accent/30 group">
-                       <Save size={14} className="group-hover:scale-110 transition-transform" /> Save Bottle
+                       <Save size={14} /> Save Bottle
                      </button>
                    </div>
-                   
-                   {/* Original small trash icon for backward compatibility or extra ease */}
-                   <button onClick={() => setLocalData({ ...localData, wines: localData.wines.filter(w => w.id !== wine.id) })} className="absolute top-4 right-4 text-stone-700 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"><Trash2 size={16} /></button>
                 </div>
               ))}
             </div>
@@ -652,7 +640,7 @@ const AdminDashboard = () => {
         )}
 
         {activeTab === 'posts' && (
-          <div className="max-w-4xl">
+          <div>
             <div className="flex justify-between items-center mb-12">
               <h1 className="text-4xl font-serif font-bold">Journal Manager</h1>
               <button 
@@ -660,28 +648,28 @@ const AdminDashboard = () => {
                   const slug = "new-post-" + Date.now();
                   setLocalData({ ...localData, posts: [{ id: Date.now().toString(), title: "New Entry", slug, excerpt: "Short summary...", content: "Full content here...", date: new Date().toISOString().split('T')[0], imageUrl: "https://images.unsplash.com/photo-1474722883778-79ad0506f2f0?q=80&w=1000&auto=format&fit=crop", published: true }, ...localData.posts] })
                 }}
-                className="bg-custom-accent px-6 py-3 text-[10px] font-bold uppercase tracking-widest"
+                className="bg-custom-accent px-6 py-3 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2"
               >
-                New Entry
+                <Plus size={14} /> New Entry
               </button>
             </div>
-            <div className="space-y-6">
+            <div className="space-y-8">
               {localData.posts.map((post, idx) => (
                 <div key={post.id} className="bg-stone-900/50 p-8 border border-white/5">
-                   <div className="grid grid-cols-2 gap-8 mb-6">
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
                       <div className="space-y-4">
                         <label className="text-[10px] uppercase font-bold text-stone-500 block">Post Title</label>
-                        <input className="w-full bg-black/40 border border-white/5 p-3 text-sm" value={post.title} onChange={(e) => {
+                        <input className="w-full bg-black/40 border border-white/5 p-3 text-sm focus:border-custom-accent outline-none" value={post.title} onChange={(e) => {
                           const p = [...localData.posts]; p[idx].title = e.target.value; setLocalData({ ...localData, posts: p });
                         }} />
                         <label className="text-[10px] uppercase font-bold text-stone-500 block">Slug (URL)</label>
-                        <input className="w-full bg-black/40 border border-white/5 p-3 text-sm font-mono" value={post.slug} onChange={(e) => {
+                        <input className="w-full bg-black/40 border border-white/5 p-3 text-sm font-mono focus:border-custom-accent outline-none" value={post.slug} onChange={(e) => {
                           const p = [...localData.posts]; p[idx].slug = e.target.value; setLocalData({ ...localData, posts: p });
                         }} />
                       </div>
                       <div className="space-y-4">
                         <label className="text-[10px] uppercase font-bold text-stone-500 block">Date</label>
-                        <input className="w-full bg-black/40 border border-white/5 p-3 text-sm" type="date" value={post.date} onChange={(e) => {
+                        <input className="w-full bg-black/40 border border-white/5 p-3 text-sm focus:border-custom-accent outline-none" type="date" value={post.date} onChange={(e) => {
                           const p = [...localData.posts]; p[idx].date = e.target.value; setLocalData({ ...localData, posts: p });
                         }} />
                         <div className="flex items-center gap-4 pt-6">
@@ -692,14 +680,60 @@ const AdminDashboard = () => {
                         </div>
                       </div>
                    </div>
-                   <label className="text-[10px] uppercase font-bold text-stone-500 block mb-2">Excerpt</label>
-                   <textarea rows={2} className="w-full bg-black/40 border border-white/5 p-3 text-sm mb-6" value={post.excerpt} onChange={(e) => {
-                      const p = [...localData.posts]; p[idx].excerpt = e.target.value; setLocalData({ ...localData, posts: p });
-                   }} />
-                   <label className="text-[10px] uppercase font-bold text-stone-500 block mb-2">Full Content</label>
-                   <textarea rows={8} className="w-full bg-black/40 border border-white/5 p-3 text-sm" value={post.content} onChange={(e) => {
-                      const p = [...localData.posts]; p[idx].content = e.target.value; setLocalData({ ...localData, posts: p });
-                   }} />
+                   <div className="space-y-4">
+                    <label className="text-[10px] uppercase font-bold text-stone-500 block">Excerpt</label>
+                    <textarea rows={2} className="w-full bg-black/40 border border-white/5 p-3 text-sm focus:border-custom-accent outline-none mb-4" value={post.excerpt} onChange={(e) => {
+                        const p = [...localData.posts]; p[idx].excerpt = e.target.value; setLocalData({ ...localData, posts: p });
+                    }} />
+                    <label className="text-[10px] uppercase font-bold text-stone-500 block">Full Content</label>
+                    <textarea rows={8} className="w-full bg-black/40 border border-white/5 p-3 text-sm focus:border-custom-accent outline-none" value={post.content} onChange={(e) => {
+                        const p = [...localData.posts]; p[idx].content = e.target.value; setLocalData({ ...localData, posts: p });
+                    }} />
+                   </div>
+                   <div className="mt-8 pt-6 border-t border-white/5 flex justify-between">
+                     <button onClick={() => setLocalData({ ...localData, posts: localData.posts.filter(p => p.id !== post.id) })} className="text-[10px] uppercase font-bold text-stone-500 hover:text-red-500 flex items-center gap-2">
+                       <Trash2 size={14} /> Delete
+                     </button>
+                     <button onClick={handleSave} className="bg-white/10 hover:bg-white/20 text-white px-5 py-3 text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-2">
+                       <Save size={14} /> Save Post
+                     </button>
+                   </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'services' && (
+          <div>
+            <div className="flex justify-between items-center mb-12">
+              <h1 className="text-4xl font-serif font-bold">Services Manager</h1>
+              <button 
+                onClick={() => setLocalData({ ...localData, services: [{ id: Date.now().toString(), title: "New Service", description: "Details...", imageUrl: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?q=80&w=1000&auto=format&fit=crop", enabled: true }, ...localData.services] })}
+                className="bg-custom-accent px-6 py-3 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2"
+              >
+                <Plus size={14} /> Add Service
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {localData.services.map((service, idx) => (
+                <div key={service.id} className="bg-stone-900/50 p-8 border border-white/5">
+                  <div className="space-y-4">
+                    <Input label="Service Title" path={`services.${idx}.title`} />
+                    <TextArea label="Description" path={`services.${idx}.description`} />
+                    <Input label="Image URL" path={`services.${idx}.imageUrl`} />
+                    <div className="flex items-center gap-4 pt-4">
+                       <input type="checkbox" checked={service.enabled} onChange={(e) => {
+                         const s = [...localData.services]; s[idx].enabled = e.target.checked; setLocalData({ ...localData, services: s });
+                       }} />
+                       <label className="text-xs uppercase font-bold tracking-widest">Enabled on Site</label>
+                    </div>
+                  </div>
+                  <div className="mt-8 pt-6 border-t border-white/5 flex justify-between">
+                     <button onClick={() => setLocalData({ ...localData, services: localData.services.filter(s => s.id !== service.id) })} className="text-[10px] uppercase font-bold text-stone-500 hover:text-red-500 flex items-center gap-2">
+                       <Trash2 size={14} /> Remove
+                     </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -707,15 +741,15 @@ const AdminDashboard = () => {
         )}
 
         {activeTab === 'theme' && (
-          <div className="max-w-4xl space-y-12">
+          <div className="space-y-12">
             <h1 className="text-4xl font-serif font-bold mb-10">Visual Identity</h1>
-            <div className="grid grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                <Input label="Accent Color (Burgundy)" path="colors.accent" type="color" />
-               <Input label="Primary Sidebar/Header" path="colors.primary" type="color" />
-               <Input label="Background Color" path="colors.background" type="color" />
+               <Input label="Header/Primary UI" path="colors.primary" type="color" />
+               <Input label="Global Background" path="colors.background" type="color" />
             </div>
             <h2 className="text-xl font-bold uppercase tracking-widest border-b border-white/10 pb-4">Visible Sections</h2>
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {Object.keys(localData.sections).map(section => (
                 <div key={section} className="flex items-center justify-between p-4 bg-stone-900 border border-white/5">
                    <span className="text-xs uppercase font-bold tracking-widest">{section}</span>
@@ -732,7 +766,7 @@ const AdminDashboard = () => {
         )}
 
         {activeTab === 'seo' && (
-          <div className="max-w-4xl space-y-8">
+          <div className="space-y-8">
              <h1 className="text-4xl font-serif font-bold mb-10">Search Engine Optimization</h1>
              <Input label="Global Page Title" path="seo.title" />
              <TextArea label="Meta Description" path="seo.description" />
@@ -742,10 +776,10 @@ const AdminDashboard = () => {
         )}
 
         {activeTab === 'subscribers' && (
-          <div className="max-w-4xl">
+          <div>
              <h1 className="text-4xl font-serif font-bold mb-12">Mailing List</h1>
-             <div className="bg-black/50 border border-white/5">
-               <table className="w-full text-left">
+             <div className="bg-black/50 border border-white/5 overflow-x-auto">
+               <table className="w-full text-left min-w-[500px]">
                   <thead className="border-b border-white/10 text-[10px] uppercase tracking-widest font-bold text-stone-500">
                     <tr>
                       <th className="p-6">Email Address</th>
@@ -759,7 +793,7 @@ const AdminDashboard = () => {
                         <td className="p-6">{sub.email}</td>
                         <td className="p-6">{sub.date}</td>
                         <td className="p-6 text-right">
-                          <button onClick={() => setLocalData({ ...localData, subscribers: localData.subscribers.filter(s => s.id !== sub.id) })} className="text-stone-600 hover:text-red-500"><Trash2 size={16} /></button>
+                          <button onClick={() => setLocalData({ ...localData, subscribers: localData.subscribers.filter(s => s.id !== sub.id) })} className="text-stone-600 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
                         </td>
                       </tr>
                     ))}
@@ -773,7 +807,6 @@ const AdminDashboard = () => {
   );
 };
 
-// --- App Root Component ---
 const App = () => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
