@@ -1,0 +1,7 @@
+{
+  "name": "Death Ave Wines T3",
+  "description": "A boutique wine shop website featuring a moody industrial aesthetic, full CMS admin dashboard, and curated collections of low-intervention wines.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
