@@ -1,13 +1,33 @@
-import React, { useState, useEffect, createContext, useContext } from 'react';
+
+import React, { useState, useEffect, createContext, useContext, useMemo } from 'react';
 import { Routes, Route, Link, useLocation, useParams, useNavigate } from 'react-router-dom';
 import { 
   Menu, X, Instagram, Phone, MapPin, Clock, ArrowRight, Settings, 
   ChevronRight, User, Wine, Layout as LayoutIcon, FileText, 
   BarChart3, Mail, Plus, Trash2, Eye, EyeOff, Palette, Save,
-  Layers
+  Layers, Navigation
 } from 'lucide-react';
 import { SiteData, Post, Wine as WineType, Subscriber, Service } from './types';
 import { INITIAL_SITE_DATA } from './constants';
+
+// --- Helpers ---
+const hexToRgb = (hex: string) => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? 
+    `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : 
+    '128, 0, 32';
+};
+
+const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+  const R = 3958.8; // Radius of the Earth in miles
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
 
 // --- Context & State Management ---
 const SiteContext = createContext<{
@@ -20,8 +40,12 @@ const SiteContext = createContext<{
 
 const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [data, setData] = useState<SiteData>(() => {
-    const saved = localStorage.getItem('death_ave_cms_data');
-    return saved ? JSON.parse(saved) : INITIAL_SITE_DATA;
+    try {
+      const saved = localStorage.getItem('death_ave_cms_data');
+      return saved ? JSON.parse(saved) : INITIAL_SITE_DATA;
+    } catch {
+      return INITIAL_SITE_DATA;
+    }
   });
 
   const updateData = (newData: SiteData) => {
@@ -30,9 +54,11 @@ const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   };
 
   useEffect(() => {
-    document.documentElement.style.setProperty('--primary-color', data.colors.primary);
-    document.documentElement.style.setProperty('--accent-color', data.colors.accent);
-    document.documentElement.style.setProperty('--bg-color', data.colors.background);
+    const root = document.documentElement;
+    root.style.setProperty('--primary-color', data.colors.primary);
+    root.style.setProperty('--accent-color', data.colors.accent);
+    root.style.setProperty('--accent-rgb', hexToRgb(data.colors.accent));
+    root.style.setProperty('--bg-color', data.colors.background);
   }, [data.colors]);
 
   return (
@@ -47,16 +73,18 @@ const ThemeStyles = () => (
     :root {
       --primary-color: #121212;
       --accent-color: #800020;
+      --accent-rgb: 128, 0, 32;
       --bg-color: #0a0a0a;
     }
     .bg-custom-primary { background-color: var(--primary-color); }
     .text-custom-accent { color: var(--accent-color); }
     .bg-custom-accent { background-color: var(--accent-color); }
     .border-custom-accent { border-color: var(--accent-color); }
-    body { background-color: var(--bg-color) !important; opacity: 1 !important; }
+    body { background-color: var(--bg-color) !important; opacity: 1 !important; color: #f4f4f4; }
     .admin-scrollbar::-webkit-scrollbar { width: 4px; }
     .admin-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .admin-scrollbar::-webkit-scrollbar-thumb { background: #333; }
+    .prose-invert { color: #d1d5db; }
   `}</style>
 );
 
@@ -220,7 +248,10 @@ const Home = () => {
         <section className="py-40 px-4 bg-stone-900 overflow-hidden">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-24">
             <div className="w-full md:w-1/2 relative">
-              <div className="absolute -inset-4 border border-custom-accent/30 translate-x-12 translate-y-12 -z-10"></div>
+              <div 
+                className="absolute -inset-4 border translate-x-12 translate-y-12 -z-10"
+                style={{ borderColor: 'rgba(var(--accent-rgb), 0.3)' }}
+              ></div>
               <img src={data.founderImageUrl} alt={data.founderImageAlt || "Michael Tzezailidis"} className="w-full grayscale shadow-2xl" />
             </div>
             <div className="w-full md:w-1/2">
@@ -311,7 +342,10 @@ const About = () => {
               <h3 className="text-3xl font-serif italic mb-6 leading-tight text-white">"We focus on cleaner wines made without heavy pesticides, partnering with those who respect the earth."</h3>
               <p className="text-stone-500 text-sm uppercase tracking-widest font-bold">— Michael Tzezailidis</p>
             </div>
-            <div className="absolute top-0 right-0 w-64 h-64 bg-custom-accent/10 -z-10 blur-3xl"></div>
+            <div 
+              className="absolute top-0 right-0 w-64 h-64 -z-10 blur-3xl rounded-full"
+              style={{ backgroundColor: 'rgba(var(--accent-rgb), 0.1)' }}
+            ></div>
           </div>
         </div>
       </div>
@@ -337,11 +371,18 @@ const Services = () => {
                <div className="p-10">
                  <h3 className="text-3xl font-serif font-bold mb-4">{service.title}</h3>
                  <p className="text-stone-400 text-sm leading-relaxed mb-8">{service.description}</p>
-                 <Link to="/contact" className="text-[10px] uppercase tracking-widest font-bold text-custom-accent border-b border-custom-accent pb-2 hover:border-custom-accent transition-all">Book Service</Link>
+                 <Link 
+                   to="/contact" 
+                   className="text-[10px] uppercase tracking-widest font-bold text-custom-accent border-b pb-2 hover:border-custom-accent transition-all"
+                   style={{ borderBottomColor: 'rgba(var(--accent-rgb), 0.3)' }}
+                 >Book Service</Link>
                </div>
             </div>
           ))}
-          <div className="p-12 border border-custom-accent/20 bg-custom-accent/5 flex flex-col justify-center text-center items-center">
+          <div 
+            className="p-12 border flex flex-col justify-center text-center items-center"
+            style={{ borderColor: 'rgba(var(--accent-rgb), 0.2)', backgroundColor: 'rgba(var(--accent-rgb), 0.05)' }}
+          >
             <h3 className="text-3xl font-serif font-bold mb-6">Weekly Tastings</h3>
             <p className="text-stone-400 text-sm mb-10 max-w-xs">Join us every Thursday for curated pours. Announcements via Instagram.</p>
             <a href={data.social.instagram} className="bg-custom-accent text-white px-8 py-4 text-xs font-bold uppercase tracking-widest">Follow for Dates</a>
@@ -367,6 +408,18 @@ const Services = () => {
 
 const Destinations = () => {
   const { data } = useContext(SiteContext);
+  const [distance, setDistance] = useState<number | null>(null);
+  const shopLoc = { lat: 40.751025, lng: -74.003507 }; // 317 10th Ave, NY
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        const d = calculateDistance(pos.coords.latitude, pos.coords.longitude, shopLoc.lat, shopLoc.lng);
+        setDistance(d);
+      }, (err) => console.log('Location access denied'));
+    }
+  }, []);
+
   return (
     <div className="pt-40 pb-40 px-4">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-32 items-center">
@@ -374,6 +427,17 @@ const Destinations = () => {
           <span className="text-custom-accent font-bold uppercase tracking-[0.4em] text-xs mb-6 block">Visit Us</span>
           <h1 className="text-6xl md:text-8xl font-serif font-bold uppercase tracking-tighter mb-10">Death Ave On 10th</h1>
           <p className="text-stone-300 text-xl font-light leading-relaxed mb-16">Located in the heart of Hudson Yards, our shop is an industrial sanctuary for those who appreciate the finer, cleaner side of wine.</p>
+          
+          {distance !== null && (
+            <div 
+              className="inline-flex items-center gap-4 px-6 py-4 border border-white/5 mb-16"
+              style={{ backgroundColor: 'rgba(var(--accent-rgb), 0.05)' }}
+            >
+              <Navigation size={18} className="text-custom-accent" />
+              <span className="text-xs font-bold uppercase tracking-widest">You are {distance.toFixed(1)} miles away</span>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div>
               <h4 className="text-[10px] uppercase tracking-widest font-bold text-stone-500 mb-4">Location</h4>
@@ -391,7 +455,7 @@ const Destinations = () => {
         </div>
         <div className="h-[700px] border border-white/5 grayscale relative">
           <iframe 
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.4497321289196!2d-74.00350712341!3d40.751025071387!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259ae65c9535b%3A0xc3f5c1287c2b33e2!2s317%2010th%20Ave%2C%20New%20York%2C%20NY%2010001!5e0!3m2!1sen!2sus!4v1715694382500!5m2!1sen!2sus" 
+            src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.4497321289196!2d${shopLoc.lng}!3d${shopLoc.lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259ae65c9535b%3A0xc3f5c1287c2b33e2!2s317%2010th%20Ave%2C%20New%20York%2C%20NY%2010001!5e0!3m2!1sen!2sus!4v1715694382500!5m2!1sen!2sus`}
             width="100%" height="100%" style={{ border: 0 }} allowFullScreen loading="lazy"
           ></iframe>
         </div>
@@ -459,7 +523,7 @@ const AdminDashboard = () => {
 
   const updateField = (path: string, value: any) => {
     const keys = path.split('.');
-    const newData = { ...localData };
+    const newData = JSON.parse(JSON.stringify(localData));
     let current: any = newData;
     for (let i = 0; i < keys.length - 1; i++) {
       current = current[keys[i]];
@@ -628,8 +692,8 @@ const AdminDashboard = () => {
                      <button onClick={() => setLocalData({ ...localData, wines: localData.wines.filter(w => w.id !== wine.id) })} className="text-[10px] uppercase tracking-widest font-bold text-stone-500 hover:text-red-500 transition-colors flex items-center gap-2">
                        <Trash2 size={14} /> Remove
                      </button>
-                     <button onClick={handleSave} className="bg-custom-accent/20 hover:bg-custom-accent text-white px-5 py-3 text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-2 border border-custom-accent/30 group">
-                       <Save size={14} /> Save Bottle
+                     <button onClick={handleSave} className="bg-white/10 hover:bg-white/20 text-white px-5 py-3 text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-2 border border-white/10">
+                       <Save size={14} /> Save Changes
                      </button>
                    </div>
                 </div>
@@ -811,7 +875,7 @@ const App = () => {
   const isAdmin = location.pathname.startsWith('/admin');
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [location.pathname]);
 
   return (
