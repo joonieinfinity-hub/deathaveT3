@@ -4,14 +4,34 @@ import {
   Menu, X, Instagram, Phone, MapPin, Clock, ArrowRight, Settings, 
   ChevronRight, User, Wine, Layout as LayoutIcon, FileText, 
   BarChart3, Mail, Plus, Trash2, Eye, EyeOff, Palette, Save,
-  Layers, Navigation, ExternalLink
+  Layers, Navigation
 } from 'lucide-react';
 import { SiteData, Post, Wine as WineType, Subscriber, Service } from './types';
 import { INITIAL_SITE_DATA } from './constants';
 
+// Inline External Link SVG fallback
+const ExternalLinkIcon: React.FC<{ size?: number; className?: string }> = ({ size = 14, className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+    <polyline points="15 3 21 3 21 9" />
+    <line x1="10" y1="14" x2="21" y2="3" />
+  </svg>
+);
+
 // --- Helpers ---
 const hexToRgb = (hex: string) => {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  const result = /^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$/i.exec(hex);
   return result ? 
     `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : 
     '128, 0, 32';
@@ -68,23 +88,7 @@ const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 };
 
 const ThemeStyles = () => (
-  <style>{`
-    :root {
-      --primary-color: #121212;
-      --accent-color: #800020;
-      --accent-rgb: 128, 0, 32;
-      --bg-color: #0a0a0a;
-    }
-    .bg-custom-primary { background-color: var(--primary-color); }
-    .text-custom-accent { color: var(--accent-color); }
-    .bg-custom-accent { background-color: var(--accent-color); }
-    .border-custom-accent { border-color: var(--accent-color); }
-    body { background-color: var(--bg-color) !important; opacity: 1 !important; color: #f4f4f4; }
-    .admin-scrollbar::-webkit-scrollbar { width: 4px; }
-    .admin-scrollbar::-webkit-scrollbar-track { background: transparent; }
-    .admin-scrollbar::-webkit-scrollbar-thumb { background: #333; }
-    .prose-invert { color: #d1d5db; }
-  `}</style>
+  <style>{`\n    :root {\n      --primary-color: #121212;\n      --accent-color: #800020;\n      --accent-rgb: 128, 0, 32;\n      --bg-color: #0a0a0a;\n    }\n    .bg-custom-primary { background-color: var(--primary-color); }\n    .text-custom-accent { color: var(--accent-color); }\n    .bg-custom-accent { background-color: var(--accent-color); }\n    .border-custom-accent { border-color: var(--accent-color); }\n    body { background-color: var(--bg-color) !important; opacity: 1 !important; color: #f4f4f4; }\n    .admin-scrollbar::-webkit-scrollbar { width: 4px; }\n    .admin-scrollbar::-webkit-scrollbar-track { background: transparent; }\n    .admin-scrollbar::-webkit-scrollbar-thumb { background: #333; }\n    .prose-invert { color: #d1d5db; }\n  `}</style>
 );
 
 const SectionTitle: React.FC<{ children: React.ReactNode, light?: boolean }> = ({ children, light }) => (
@@ -442,7 +446,7 @@ const Destinations = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[9px] uppercase tracking-widest text-custom-accent font-bold flex items-center gap-1 hover:underline"
-                >Get Directions <ExternalLink size={10} /></a>
+                >Get Directions <ExternalLinkIcon size={10} /></a>
               </div>
             </div>
           )}
