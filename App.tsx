@@ -1,11 +1,10 @@
-
-import React, { useState, useEffect, createContext, useContext, useMemo } from 'react';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import { Routes, Route, Link, useLocation, useParams, useNavigate } from 'react-router-dom';
 import { 
   Menu, X, Instagram, Phone, MapPin, Clock, ArrowRight, Settings, 
   ChevronRight, User, Wine, Layout as LayoutIcon, FileText, 
   BarChart3, Mail, Plus, Trash2, Eye, EyeOff, Palette, Save,
-  Layers, Navigation
+  Layers, Navigation, ExternalLink
 } from 'lucide-react';
 import { SiteData, Post, Wine as WineType, Subscriber, Service } from './types';
 import { INITIAL_SITE_DATA } from './constants';
@@ -313,7 +312,11 @@ const Posts = () => {
                 <span className="text-[10px] uppercase tracking-widest text-stone-500 font-bold mb-6 block">{post.date}</span>
                 <h2 className="text-4xl font-serif font-bold mb-8 leading-tight group-hover:text-custom-accent transition-colors">{post.title}</h2>
                 <p className="text-stone-400 leading-relaxed mb-10 text-lg">{post.excerpt}</p>
-                <Link to={`/posts/${post.slug}`} className="inline-block text-xs font-bold uppercase tracking-widest border-b border-custom-accent pb-2">Read Article</Link>
+                <Link 
+                  to={`/posts/${post.slug}`} 
+                  className="inline-block text-xs font-bold uppercase tracking-widest border-b pb-2 hover:border-custom-accent transition-colors"
+                  style={{ borderBottomColor: 'rgba(var(--accent-rgb), 0.3)' }}
+                >Read Article</Link>
               </div>
             </article>
           ))}
@@ -430,11 +433,18 @@ const Destinations = () => {
           
           {distance !== null && (
             <div 
-              className="inline-flex items-center gap-4 px-6 py-4 border border-white/5 mb-16"
+              className="inline-flex items-center gap-4 px-6 py-4 border border-white/5 mb-16 group"
               style={{ backgroundColor: 'rgba(var(--accent-rgb), 0.05)' }}
             >
               <Navigation size={18} className="text-custom-accent" />
-              <span className="text-xs font-bold uppercase tracking-widest">You are {distance.toFixed(1)} miles away</span>
+              <div className="flex flex-col">
+                <span className="text-xs font-bold uppercase tracking-widest">You are {distance.toFixed(1)} miles away</span>
+                <a 
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${shopLoc.lat},${shopLoc.lng}`} 
+                  target="_blank" 
+                  className="text-[9px] uppercase tracking-widest text-custom-accent font-bold flex items-center gap-1 hover:underline"
+                >Get Directions <ExternalLink size={10} /></a>
+              </div>
             </div>
           )}
 
@@ -569,6 +579,13 @@ const AdminDashboard = () => {
         <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-white"><Menu /></button>
       </div>
 
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm" 
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       <div className={`w-72 bg-black border-r border-white/5 p-8 flex flex-col gap-2 fixed md:sticky h-screen top-0 transition-transform z-50 overflow-y-auto admin-scrollbar ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
         <div className="flex justify-between items-center mb-10">
           <h2 className="text-2xl font-serif font-bold text-custom-accent uppercase tracking-tight">CMS Portal</h2>
@@ -693,7 +710,7 @@ const AdminDashboard = () => {
                        <Trash2 size={14} /> Remove
                      </button>
                      <button onClick={handleSave} className="bg-white/10 hover:bg-white/20 text-white px-5 py-3 text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-2 border border-white/10">
-                       <Save size={14} /> Save Changes
+                       <Save size={14} /> Save Bottle
                      </button>
                    </div>
                 </div>
